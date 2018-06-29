@@ -161,7 +161,7 @@ public class JavaHyperSql {
 		Contato cttUsr = new Contato();
 		
 		cttUsr.setNome("TESTE NOVO");
-		cttUsr.setTelefone("teste_novo@tr.tr");
+		cttUsr.setTelefone("(62)9999-9999");
 		
 		cttDAO.inserirUContato(cttUsr);
 		
