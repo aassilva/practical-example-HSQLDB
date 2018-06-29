@@ -80,3 +80,97 @@
   
 
 5. Crie as classes e seus abributos veja exemplo no código.
+
+## Conexão bruta
+
+1. Crie um projeto java;
+2. Crie uma pasta chamada lib;
+3. Coloque o arquivo .jar na basta lib;
+4. Faça o arquivo ser reconhecido como biblioteca;
+   * Depende da IDE
+   * Adicione Libraries
+5. Crie a classe de conexão
+```
+public class CNXJDBC {
+
+	private String usuario = "SA";
+	private String senha = "";
+	private String PathBase = "endereço da base de dados";
+	private String URL = "jdbc:hsqldb:file:" + PathBase + ";";
+
+	public Connection conectar() {
+		try {
+			return DriverManager.getConnection(URL, usuario, senha);
+		} catch (SQLException e) {
+			throw new RuntimeException();
+		}
+	}
+
+}
+```
+6. Crie as classes de operaçes/serviços.
+```
+public class ContatoDAO {
+	private final String SQL_INSERE_CONTATO = "INSERT INTO USUARIOS(NOME, TELEFONE) VALUES ( ?, ?);";
+	private final String SQL_SELECIONA_USUARIO = "SELECT * FROM USUARIOS";
+
+	private PreparedStatement pst = null;
+
+	public void inserirContato(Contato contato) {
+		try (	Connection conn = new CNXJDBC().conectar(); 
+				PreparedStatement pst = conn.prepareStatement(SQL_INSERE_CONTATO);) {
+			pst.setString(1, contato.getNome());
+			pst.setString(2, contato.getTelefone());
+			pst.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Erro ao executar o Statment " + e.toString());
+		}
+	}
+	
+public ArrayList<Contato> listarTodosContato() {
+		ArrayList<Contato> contatos = new ArrayList<Contatos>();
+
+		Contato contato;
+		try (	Connection conn = new CNXJDBC().conectar();
+				PreparedStatement pst = conn.prepareStatement(SQL_SELECIONA_CONTATO);
+				ResultSet rs = pst.executeQuery();) {
+
+			while (rs.next()) {
+				contato = new Contato();
+				contato.setId(rs.getInt("ID"));
+				contato.setNome(rs.getString("NOME"));
+				contato.setTelefone(rs.getString("TELEFONE"));
+				contatos.add(contato);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Erro ao executar o Statement" + e.toString());
+		}
+
+		return contatos;
+	}
+}
+```
+7. Crie a classe principal:
+```
+public class JavaHyperSql {
+
+	public static void main(String[] args) {
+		ContatoDAO cttDAO = new ContatoDAO();
+		Contato cttUsr = new Contato();
+		
+		cttUsr.setNome("TESTE NOVO");
+		cttUsr.setEMail("teste_novo@tr.tr");
+		
+		cttDAO.inserirUContato(cttUsr);
+		
+		ArrayList<Contato> Contatos = cttDAO.listarTodosContatos();
+		for(COntato contato : Contatos)
+			System.out.println(contato.toString());
+		
+		
+	}
+
+}
+```
